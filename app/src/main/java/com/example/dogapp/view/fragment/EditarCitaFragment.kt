@@ -2,8 +2,11 @@
 package com.example.dogapp.view.fragment
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.fragment.app.Fragment
@@ -68,8 +71,7 @@ class EditarCitaFragment : Fragment(R.layout.fragment_editar_cita) {
             binding.progressEdicion.visibility =
                 if (cargando) View.VISIBLE else View.GONE
 
-            binding.btnEditarCita.isEnabled =
-                !cargando && formularioValido()
+            validarCampos()
         }
 
         dogViewModel.error.observe(viewLifecycleOwner) { mensaje ->
@@ -91,28 +93,38 @@ class EditarCitaFragment : Fragment(R.layout.fragment_editar_cita) {
                 ).show()
 
                 dogViewModel.limpiarEstadoOperacion()
-
                 regresarAHome()
             }
         }
     }
 
     private fun configurarCampos() {
-        binding.etNombreMascota.addTextChangedListener(
-            SimpleTextWatcher { validarCampos() }
-        )
+        observarCambios(binding.etNombreMascota)
+        observarCambios(binding.actvRaza)
+        observarCambios(binding.etPropietario)
+        observarCambios(binding.etTelefono)
+    }
 
-        binding.actvRaza.addTextChangedListener(
-            SimpleTextWatcher { validarCampos() }
-        )
+    private fun observarCambios(campo: EditText) {
+        campo.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(
+                s: CharSequence?,
+                start: Int,
+                count: Int,
+                after: Int
+            ) = Unit
 
-        binding.etPropietario.addTextChangedListener(
-            SimpleTextWatcher { validarCampos() }
-        )
+            override fun onTextChanged(
+                s: CharSequence?,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
+                validarCampos()
+            }
 
-        binding.etTelefono.addTextChangedListener(
-            SimpleTextWatcher { validarCampos() }
-        )
+            override fun afterTextChanged(s: Editable?) = Unit
+        })
     }
 
     private fun cargarCita() {
@@ -177,8 +189,7 @@ class EditarCitaFragment : Fragment(R.layout.fragment_editar_cita) {
 
     private fun validarCampos() {
         binding.btnEditarCita.isEnabled =
-            formularioValido() &&
-                    dogViewModel.isLoading.value != true
+            formularioValido() && dogViewModel.isLoading.value != true
     }
 
     private fun actualizarCita() {
@@ -222,3 +233,4 @@ class EditarCitaFragment : Fragment(R.layout.fragment_editar_cita) {
         _binding = null
     }
 }
+

@@ -1,11 +1,10 @@
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.kapt")
+    id("com.android.legacy-kapt")
 }
 
 android {
-    namespace = "com.grupodos.dogapp"
+    namespace = "com.example.dogapp"
     compileSdk = 36
 
     defaultConfig {
@@ -24,10 +23,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = "17"
     }
 }
 
@@ -52,6 +47,7 @@ dependencies {
     implementation("androidx.room:room-runtime:2.8.4")
     implementation("androidx.room:room-ktx:2.8.4")
     kapt("androidx.room:room-compiler:2.8.4")
+    kapt("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.21")
 
     // API REST: Retrofit
     implementation("com.squareup.retrofit2:retrofit:3.0.0")
@@ -68,8 +64,4 @@ dependencies {
 
     // Autenticación biométrica
     implementation("androidx.biometric:biometric:1.1.0")
-}
-
-kapt {
-    correctErrorTypes = true
 }

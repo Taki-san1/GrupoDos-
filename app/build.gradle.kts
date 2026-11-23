@@ -10,7 +10,8 @@ android {
 
     defaultConfig {
         applicationId = "com.grupodos.dogapp"
-        minSdk = 21
+        // Room 2.8.x requiere API 23 como mínimo.
+        minSdk = 23
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"

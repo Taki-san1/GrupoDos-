@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -43,29 +42,50 @@ class NuevaCitaFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         configurarBotonVolver()
+        configurarCampoNombre()
+        configurarCampoRaza()
         configurarListaSintomas()
-        configurarObservadores()
-        configurarValidacionInicial()
-
-        cargarRazas()
+        observarRazas()
+        observarCarga()
+        observarErrores()
     }
 
+    // Navegación hacia la pantalla anterior
     private fun configurarBotonVolver() {
         binding.btnVolver.setOnClickListener {
             findNavController().navigateUp()
         }
     }
 
-    private fun configurarListaSintomas() {
-        val adaptadorSintomas = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_dropdown_item_1line,
-            Constants.SINTOMAS
+    // HU 3.2: Nombre de la mascota
+    private fun configurarCampoNombre() {
+
+        binding.etNombreMascota.filters = arrayOf(
+            android.text.InputFilter.LengthFilter(15)
         )
 
-        binding.actvSintoma.setAdapter(adaptadorSintomas)
-        binding.actvSintoma.setOnClickListener {
-            binding.actvSintoma.showDropDown()
+        binding.etNombreMascota.addTextChangedListener {
+            validarCamposPrincipales()
+        }
+    }
+
+    // HU 3.3: Autocompletado de razas
+    private fun configurarCampoRaza() {
+
+        binding.actvRaza.threshold = 2
+
+        binding.actvRaza.addTextChangedListener { texto ->
+            val consulta = texto?.toString()?.trim().orEmpty()
+
+            if (consulta.length >= 2 && listaRazas.isEmpty()) {
+                cargarRazas()
+            }
+
+            validarCamposPrincipales()
+        }
+
+        binding.actvRaza.setOnItemClickListener { _, _, _, _ ->
+            validarCamposPrincipales()
         }
     }
 
@@ -73,36 +93,50 @@ class NuevaCitaFragment : Fragment() {
         dogViewModel.cargarRazas()
     }
 
-    private fun configurarObservadores() {
+    private fun observarRazas() {
 
         dogViewModel.razas.observe(viewLifecycleOwner) { razas ->
+
             if (!razas.isNullOrEmpty()) {
+
                 listaRazas = razas
 
-                val adaptadorRazas = ArrayAdapter(
+                val adaptador = ArrayAdapter(
                     requireContext(),
                     android.R.layout.simple_dropdown_item_1line,
                     listaRazas
                 )
 
-                binding.actvRaza.setAdapter(adaptadorRazas)
-                binding.actvRaza.threshold = 2
+                binding.actvRaza.setAdapter(adaptador)
 
-                binding.actvRaza.setOnItemClickListener { _, _, _, _ ->
-                    validarFormulario()
+                val consulta = binding.actvRaza.text.toString()
+
+                if (consulta.length >= 2) {
+                    binding.actvRaza.showDropDown()
                 }
             }
+
+            validarCamposPrincipales()
         }
+    }
+
+    private fun observarCarga() {
 
         dogViewModel.isLoading.observe(viewLifecycleOwner) { cargando ->
+
             binding.progressRazas.visibility =
                 if (cargando) View.VISIBLE else View.GONE
 
             binding.actvRaza.isEnabled = !cargando
         }
+    }
+
+    private fun observarErrores() {
 
         dogViewModel.error.observe(viewLifecycleOwner) { mensaje ->
+
             if (!mensaje.isNullOrBlank()) {
+
                 Toast.makeText(
                     requireContext(),
                     mensaje,
@@ -112,46 +146,26 @@ class NuevaCitaFragment : Fragment() {
         }
     }
 
-    private fun configurarValidacionInicial() {
+    // Lista de síntomas preparada para el bloque 3.4
+    private fun configurarListaSintomas() {
 
-        binding.etNombreMascota.addTextChangedListener {
-            validarFormulario()
-        }
+        val adaptador = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            Constants.SINTOMAS
+        )
 
-        binding.actvRaza.addTextChangedListener {
-            validarFormulario()
-        }
+        binding.actvSintoma.setAdapter(adaptador)
 
-        binding.etPropietario.addTextChangedListener {
-            validarFormulario()
-        }
-
-        binding.etTelefono.addTextChangedListener {
-            validarFormulario()
-        }
-
-        binding.actvSintoma.setOnItemClickListener { _, _, _, _ ->
-            validarFormulario()
-        }
-
-        binding.actvRaza.setOnFocusChangeListener { _, tieneFoco ->
-            if (tieneFoco && listaRazas.isNotEmpty()) {
-                binding.actvRaza.showDropDown()
-            }
-        }
-
-        binding.btnGuardarCita.setOnClickListener {
-            Toast.makeText(
-                requireContext(),
-                "La funcionalidad de guardado se implementará en el bloque 3.5.",
-                Toast.LENGTH_SHORT
-            ).show()
+        binding.actvSintoma.setOnClickListener {
+            binding.actvSintoma.showDropDown()
         }
     }
 
-    private fun validarFormulario() {
+    // Validación de los campos que estamos desarrollando
+    private fun validarCamposPrincipales() {
 
-        val nombreMascota = binding.etNombreMascota.text
+        val nombre = binding.etNombreMascota.text
             ?.toString()
             ?.trim()
             .orEmpty()
@@ -161,33 +175,21 @@ class NuevaCitaFragment : Fragment() {
             ?.trim()
             .orEmpty()
 
-        val propietario = binding.etPropietario.text
-            ?.toString()
-            ?.trim()
-            .orEmpty()
-
-        val telefono = binding.etTelefono.text
-            ?.toString()
-            ?.trim()
-            .orEmpty()
-
-        val sintoma = binding.actvSintoma.text
-            ?.toString()
-            ?.trim()
-            .orEmpty()
+        val nombreValido =
+            nombre.isNotEmpty() && nombre.length <= 15
 
         val razaValida = listaRazas.any {
             it.equals(raza, ignoreCase = true)
         }
 
+        // La habilitación definitiva del botón se completará
+        // cuando implementemos todos los campos del formulario.
         binding.btnGuardarCita.isEnabled =
-            nombreMascota.isNotEmpty() &&
-            nombreMascota.length <= 15 &&
+            nombreValido &&
             razaValida &&
-            propietario.isNotEmpty() &&
-            propietario.length <= 30 &&
-            telefono.length == 10 &&
-            sintoma in Constants.SINTOMAS
+            binding.etPropietario.text.toString().isNotBlank() &&
+            binding.etTelefono.text.toString().length == 10 &&
+            binding.actvSintoma.text.toString() in Constants.SINTOMAS
     }
 
     override fun onDestroyView() {

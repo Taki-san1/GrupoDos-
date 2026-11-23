@@ -127,40 +127,49 @@ class EditarCitaFragment : Fragment(R.layout.fragment_editar_cita) {
         })
     }
 
-    private fun cargarCita() {
-        val idCita = arguments?.getInt(ARG_CITA_ID, -1) ?: -1
 
-        if (idCita <= 0) {
+private fun cargarCita() {
+    val idCita = arguments?.getInt(ARG_CITA_ID, -1) ?: -1
+
+    if (idCita <= 0) {
+        Toast.makeText(
+            requireContext(),
+            "No se recibió una cita válida para editar",
+            Toast.LENGTH_LONG
+        ).show()
+
+        binding.btnEditarCita.isEnabled = false
+        return
+    }
+
+    dogViewModel.obtenerCita(idCita) { cita ->
+
+        if (cita == null) {
             Toast.makeText(
                 requireContext(),
-                "No se recibió una cita válida para editar",
+                "No se encontró la cita seleccionada",
                 Toast.LENGTH_LONG
             ).show()
+
             binding.btnEditarCita.isEnabled = false
-            return
+            return@obtenerCita
         }
 
-        dogViewModel.obtenerCita(idCita) { cita ->
-            if (cita == null) {
-                Toast.makeText(
-                    requireContext(),
-                    "No se encontró la cita seleccionada",
-                    Toast.LENGTH_LONG
-                ).show()
-                return@obtenerCita
-            }
+        // Conservar la información original
+        citaOriginal = cita
+        citaCargada = true
 
-            citaOriginal = cita
-            citaCargada = true
+        // Precargar los campos del formulario
+        binding.etNombreMascota.setText(cita.nombreMascota)
+        binding.actvRaza.setText(cita.raza, false)
+        binding.etPropietario.setText(cita.nombrePropietario)
+        binding.etTelefono.setText(cita.telefono)
 
-            binding.etNombreMascota.setText(cita.nombreMascota)
-            binding.actvRaza.setText(cita.raza, false)
-            binding.etPropietario.setText(cita.nombrePropietario)
-            binding.etTelefono.setText(cita.telefono)
-
-            validarCampos()
-        }
+        // Comprobar si el formulario está completo
+        validarCampos()
     }
+}
+
 
     private fun configurarBotonEditar() {
         binding.btnEditarCita.setOnClickListener {
@@ -233,4 +242,5 @@ class EditarCitaFragment : Fragment(R.layout.fragment_editar_cita) {
         _binding = null
     }
 }
+
 

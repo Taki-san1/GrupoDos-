@@ -11,8 +11,8 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.example.dogapp.R
 import com.example.dogapp.databinding.FragmentNuevaCitaBinding
+import com.example.dogapp.model.Cita
 import com.example.dogapp.utils.Constants
 import com.example.dogapp.viewmodel.DogViewModel
 
@@ -44,13 +44,20 @@ class NuevaCitaFragment : Fragment() {
         configurarBotonVolver()
         configurarCampoNombre()
         configurarCampoRaza()
+        configurarCampoPropietario()
+        configurarCampoTelefono()
         configurarListaSintomas()
+        configurarBotonGuardar()
+
         observarRazas()
         observarCarga()
         observarErrores()
+        observarGuardado()
+
+        dogViewModel.cargarRazas()
     }
 
-    // Navegación hacia la pantalla anterior
+    // Regresar al Home de citas
     private fun configurarBotonVolver() {
         binding.btnVolver.setOnClickListener {
             findNavController().navigateUp()
@@ -60,37 +67,30 @@ class NuevaCitaFragment : Fragment() {
     // HU 3.2: Nombre de la mascota
     private fun configurarCampoNombre() {
 
-        binding.etNombreMascota.filters = arrayOf(
-            android.text.InputFilter.LengthFilter(15)
-        )
-
         binding.etNombreMascota.addTextChangedListener {
-            validarCamposPrincipales()
+            validarFormulario()
         }
     }
 
-    // HU 3.3: Autocompletado de razas
+    // HU 3.3: Selección de raza
     private fun configurarCampoRaza() {
 
         binding.actvRaza.threshold = 2
 
         binding.actvRaza.addTextChangedListener { texto ->
+
             val consulta = texto?.toString()?.trim().orEmpty()
 
             if (consulta.length >= 2 && listaRazas.isEmpty()) {
-                cargarRazas()
+                dogViewModel.cargarRazas()
             }
 
-            validarCamposPrincipales()
+            validarFormulario()
         }
 
         binding.actvRaza.setOnItemClickListener { _, _, _, _ ->
-            validarCamposPrincipales()
+            validarFormulario()
         }
-    }
-
-    private fun cargarRazas() {
-        dogViewModel.cargarRazas()
     }
 
     private fun observarRazas() {
@@ -109,44 +109,32 @@ class NuevaCitaFragment : Fragment() {
 
                 binding.actvRaza.setAdapter(adaptador)
 
-                val consulta = binding.actvRaza.text.toString()
-
-                if (consulta.length >= 2) {
+                if (binding.actvRaza.text.length >= 2) {
                     binding.actvRaza.showDropDown()
                 }
             }
 
-            validarCamposPrincipales()
+            validarFormulario()
         }
     }
 
-    private fun observarCarga() {
+    // HU 3.4: Nombre del propietario
+    private fun configurarCampoPropietario() {
 
-        dogViewModel.isLoading.observe(viewLifecycleOwner) { cargando ->
-
-            binding.progressRazas.visibility =
-                if (cargando) View.VISIBLE else View.GONE
-
-            binding.actvRaza.isEnabled = !cargando
+        binding.etPropietario.addTextChangedListener {
+            validarFormulario()
         }
     }
 
-    private fun observarErrores() {
+    // HU 3.4: Teléfono de contacto
+    private fun configurarCampoTelefono() {
 
-        dogViewModel.error.observe(viewLifecycleOwner) { mensaje ->
-
-            if (!mensaje.isNullOrBlank()) {
-
-                Toast.makeText(
-                    requireContext(),
-                    mensaje,
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+        binding.etTelefono.addTextChangedListener {
+            validarFormulario()
         }
     }
 
-    // Lista de síntomas preparada para el bloque 3.4
+    // HU 3.4: Selector de síntomas
     private fun configurarListaSintomas() {
 
         val adaptador = ArrayAdapter(
@@ -162,34 +150,133 @@ class NuevaCitaFragment : Fragment() {
         }
     }
 
-    // Validación de los campos que estamos desarrollando
-    private fun validarCamposPrincipales() {
+    // HU 3.5: Validación de los campos obligatorios
+    private fun validarFormulario() {
 
         val nombre = binding.etNombreMascota.text
-            ?.toString()
-            ?.trim()
-            .orEmpty()
+            ?.toString()?.trim().orEmpty()
 
         val raza = binding.actvRaza.text
-            ?.toString()
-            ?.trim()
-            .orEmpty()
+            ?.toString()?.trim().orEmpty()
 
-        val nombreValido =
-            nombre.isNotEmpty() && nombre.length <= 15
+        val propietario = binding.etPropietario.text
+            ?.toString()?.trim().orEmpty()
+
+        val telefono = binding.etTelefono.text
+            ?.toString()?.trim().orEmpty()
 
         val razaValida = listaRazas.any {
             it.equals(raza, ignoreCase = true)
         }
 
-        // La habilitación definitiva del botón se completará
-        // cuando implementemos todos los campos del formulario.
-        binding.btnGuardarCita.isEnabled =
-            nombreValido &&
+        val camposCompletos =
+            nombre.isNotEmpty() &&
+            nombre.length <= 15 &&
             razaValida &&
-            binding.etPropietario.text.toString().isNotBlank() &&
-            binding.etTelefono.text.toString().length == 10 &&
-            binding.actvSintoma.text.toString() in Constants.SINTOMAS
+            propietario.isNotEmpty() &&
+            propietario.length <= 30 &&
+            telefono.isNotEmpty() &&
+            telefono.all { it.isDigit() } &&
+            telefono.length <= 10
+
+        binding.btnGuardarCita.isEnabled = camposCompletos
+    }
+
+    private fun configurarBotonGuardar() {
+
+        binding.btnGuardarCita.setOnClickListener {
+
+            val sintoma = binding.actvSintoma.text
+                ?.toString()?.trim().orEmpty()
+
+            if (sintoma !in Constants.SINTOMAS) {
+                Toast.makeText(
+                    requireContext(),
+                    "Selecciona un síntoma",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+
+            guardarCita()
+        }
+    }
+
+    // HU 3.5: Guardar la cita mediante Room
+    private fun guardarCita() {
+
+        val nuevaCita = Cita(
+            nombreMascota = binding.etNombreMascota.text
+                .toString().trim(),
+
+            raza = binding.actvRaza.text
+                .toString().trim(),
+
+            nombrePropietario = binding.etPropietario.text
+                .toString().trim(),
+
+            telefono = binding.etTelefono.text
+                .toString().trim(),
+
+            sintoma = binding.actvSintoma.text
+                .toString().trim()
+        )
+
+        binding.btnGuardarCita.isEnabled = false
+
+        dogViewModel.limpiarEstadoOperacion()
+        dogViewModel.guardarCita(nuevaCita)
+    }
+
+    private fun observarCarga() {
+
+        dogViewModel.isLoading.observe(viewLifecycleOwner) { cargando ->
+
+            binding.progressRazas.visibility =
+                if (cargando) View.VISIBLE else View.GONE
+
+            if (cargando) {
+                binding.btnGuardarCita.isEnabled = false
+            } else {
+                validarFormulario()
+            }
+        }
+    }
+
+    private fun observarErrores() {
+
+        dogViewModel.error.observe(viewLifecycleOwner) { mensaje ->
+
+            if (!mensaje.isNullOrBlank()) {
+
+                Toast.makeText(
+                    requireContext(),
+                    mensaje,
+                    Toast.LENGTH_LONG
+                ).show()
+
+                validarFormulario()
+            }
+        }
+    }
+
+    private fun observarGuardado() {
+
+        dogViewModel.operacionCompletada.observe(viewLifecycleOwner) { completada ->
+
+            if (completada == true) {
+
+                Toast.makeText(
+                    requireContext(),
+                    "Cita guardada correctamente",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                dogViewModel.limpiarEstadoOperacion()
+
+                findNavController().popBackStack()
+            }
+        }
     }
 
     override fun onDestroyView() {

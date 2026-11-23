@@ -3,8 +3,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- Fondo de Home, Nueva Cita, Detalle y Editar (blanco con tono leve, como en las capturas) -->
-    <color name="fondo_pantalla">#FEF7FF</color>
+    <!-- Fondo blanco de Home, Nueva Cita, Detalle y Editar -->
+    <color name="fondo_pantalla">#FFFFFF</color>
     <!-- Login, header del Home y toolbars -->
     <color name="gris_oscuro">#222B31</color>
     <!-- Botones, FAB, flecha atrás, turno y línea del detalle (#F05861) -->

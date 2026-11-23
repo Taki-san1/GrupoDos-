@@ -1,0 +1,6 @@
+<resources>
+    <!-- HU 1 criterio 7: nombre de la app bajo el ícono -->
+    <string name="app_name">dogApp</string>
+    <string name="titulo_dogapp">DogApp</string>
+    <string name="desc_huella">Iniciar sesión con huella digital</string>
+</resources>

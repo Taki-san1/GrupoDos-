@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Botón rosado #F05861 con bordes redondeados; más claro mientras está inactivo (HU 3 y 5) -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false">
+        <shape android:shape="rectangle">
+            <solid android:color="#F7AEB2" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/rosado" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+</selector>

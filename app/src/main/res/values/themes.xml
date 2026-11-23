@@ -1,0 +1,12 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Sin ActionBar: cada pantalla dibuja su propio encabezado (HU 1 criterio 1). -->
+    <style name="Theme.DogApp" parent="Theme.Material3.Light.NoActionBar">
+        <item name="android:windowBackground">@color/fondo_pantalla</item>
+        <item name="android:statusBarColor">@color/gris_oscuro</item>
+        <item name="android:navigationBarColor">@color/gris_oscuro</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <!-- Android 15+: que la app no se dibuje debajo de la barra de estado
+             ni de los botones de navegación -->
+        <item name="android:windowOptOutEdgeToEdgeEnforcement" tools:targetApi="35">true</item>
+    </style>
+</resources>

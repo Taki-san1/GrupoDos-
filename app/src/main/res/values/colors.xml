@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Fondo de Home, Nueva Cita, Detalle y Editar (blanco con tono leve, como en las capturas) -->
+    <color name="fondo_pantalla">#FEF7FF</color>
+    <!-- Login, header del Home y toolbars -->
+    <color name="gris_oscuro">#222B31</color>
+    <!-- Botones, FAB, flecha atrás, turno y línea del detalle (#F05861) -->
+    <color name="rosado">#F05861</color>
+    <color name="rosado_inactivo">#F5868C</color>
+    <!-- Borde y hint de los campos con foco -->
+    <color name="morado">#6750A4</color>
+    <!-- Textos -->
+    <color name="gris_titulo">#3A3A3A</color>
+    <color name="gris_texto">#5F5F5F</color>
+    <color name="gris_hint">#79747E</color>
+    <!-- FAB de editar en Detalle (HU 4) -->
+    <color name="azul_oscuro">#263238</color>
+    <!-- Animación de la huella en el Login -->
+    <color name="huella_turquesa">#3CC8B4</color>
+</resources>

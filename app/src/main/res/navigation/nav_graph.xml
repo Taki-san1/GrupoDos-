@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <!-- HU 1.0 Login -->
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.dogapp.view.fragment.LoginFragment"
+        android:label="Login">
+        <!-- Se saca el Login de la pila: desde Home, Atrás va al escritorio (HU 2 criterio 1) -->
+        <action
+            android:id="@+id/action_loginFragment_to_homeCitasFragment"
+            app:destination="@id/homeCitasFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- HU 2.0 Home Administrador de Citas -->
+    <fragment
+        android:id="@+id/homeCitasFragment"
+        android:name="com.example.dogapp.view.fragment.HomeCitasFragment"
+        android:label="Administrador de Citas">
+        <action
+            android:id="@+id/action_homeCitasFragment_to_nuevaCitaFragment"
+            app:destination="@id/nuevaCitaFragment" />
+        <action
+            android:id="@+id/action_homeCitasFragment_to_detalleCitaFragment"
+            app:destination="@id/detalleCitaFragment" />
+    </fragment>
+
+    <!-- HU 3.0 Nueva Cita -->
+    <fragment
+        android:id="@+id/nuevaCitaFragment"
+        android:name="com.example.dogapp.view.fragment.NuevaCitaFragment"
+        android:label="Nueva Cita" />
+
+    <!-- HU 4.0 Detalle de la Cita. Recibe la cita en el argumento "cita" (Constants.CLAVE_CITA). -->
+    <fragment
+        android:id="@+id/detalleCitaFragment"
+        android:name="com.example.dogapp.view.fragment.DetalleCitaFragment"
+        android:label="Detalle de la Cita">
+        <argument
+            android:name="cita"
+            app:argType="com.example.dogapp.model.Cita" />
+        <action
+            android:id="@+id/action_detalleCitaFragment_to_editarCitaFragment"
+            app:destination="@id/editarCitaFragment" />
+    </fragment>
+
+    <!-- HU 5.0 Editar Cita. Al guardar vuelve al Home (criterio 8). -->
+    <fragment
+        android:id="@+id/editarCitaFragment"
+        android:name="com.example.dogapp.view.fragment.EditarCitaFragment"
+        android:label="Editar Cita">
+        <argument
+            android:name="cita"
+            app:argType="com.example.dogapp.model.Cita" />
+        <action
+            android:id="@+id/action_editarCitaFragment_to_homeCitasFragment"
+            app:destination="@id/homeCitasFragment"
+            app:popUpTo="@id/homeCitasFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+</navigation>

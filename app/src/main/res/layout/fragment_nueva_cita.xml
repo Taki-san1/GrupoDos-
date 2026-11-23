@@ -7,14 +7,12 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
-    <!-- Encabezado -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardToolbar"
         android:layout_width="0dp"
-        android:layout_height="112dp"
+        android:layout_height="100dp"
         app:cardBackgroundColor="#333333"
         app:cardCornerRadius="0dp"
-        app:shapeAppearanceOverlay="@style/ToolbarBottomRounded"
         app:cardElevation="3dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -24,15 +22,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <ImageButton
+            <TextView
                 android:id="@+id/btnVolver"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:layout_marginStart="12dp"
+                android:gravity="center"
+                android:text="‹"
+                android:textColor="#F05861"
+                android:textSize="42sp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Volver"
-                android:src="@drawable/ic_arrow_back"
-                app:tint="#F05861"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
@@ -53,13 +52,11 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Formulario -->
     <ScrollView
         android:id="@+id/scrollFormulario"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
-        android:clipToPadding="false"
         android:paddingStart="22dp"
         android:paddingEnd="22dp"
         android:paddingTop="24dp"
@@ -74,7 +71,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Nombre de la mascota -->
+            <!-- 3.2 Nombre de la mascota -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilNombreMascota"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -95,10 +92,10 @@
                     android:maxLines="1"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Raza -->
+            <!-- 3.3 Raza -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilRaza"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
@@ -112,8 +109,8 @@
                     android:layout_height="wrap_content"
                     android:inputType="textCapWords"
                     android:completionThreshold="2"
-                    android:maxLines="1"
-                    android:singleLine="true"/>
+                    android:singleLine="true"
+                    android:completionHint="Selecciona una raza"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Propietario -->
@@ -163,7 +160,7 @@
             <!-- Síntomas -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilSintoma"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="18dp"
@@ -178,20 +175,17 @@
                     android:inputType="none"
                     android:focusable="false"
                     android:clickable="true"
-                    android:maxLines="1"/>
+                    android:singleLine="true"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Indicador de carga -->
             <ProgressBar
                 android:id="@+id/progressRazas"
-                style="?android:attr/progressBarStyle"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="14dp"
                 android:visibility="gone"/>
 
-            <!-- Guardar -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnGuardarCita"
                 android:layout_width="match_parent"
@@ -204,12 +198,10 @@
                 android:textStyle="bold"
                 android:enabled="false"
                 app:backgroundTint="#F05861"
-                app:cornerRadius="14dp"
-                app:icon="@drawable/ic_save"
-                app:iconGravity="textStart"
-                app:iconTint="#FFFFFF"/>
+                app:cornerRadius="14dp"/>
 
         </LinearLayout>
     </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

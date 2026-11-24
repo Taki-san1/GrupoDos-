@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.dogapp.R
 import com.example.dogapp.databinding.FragmentEditarCitaBinding
+import com.google.android.material.textfield.TextInputLayout
 import com.example.dogapp.model.Cita
 import com.example.dogapp.utils.Constants
 import com.example.dogapp.viewmodel.DogViewModel
@@ -27,6 +28,7 @@ class EditarCitaFragment : Fragment(R.layout.fragment_editar_cita) {
     private var citaOriginal: Cita? = null
     private var listaRazas: List<String> = emptyList()
     private var citaCargada = false
+    private val camposVisitados = mutableSetOf<Int>()
 
     companion object {
         const val ARG_CITA_ID = Constants.CLAVE_CITA_ID
@@ -65,6 +67,7 @@ class EditarCitaFragment : Fragment(R.layout.fragment_editar_cita) {
             binding.actvRaza.setAdapter(adapter)
             binding.actvRaza.threshold = 2
 
+            actualizarErroresCampos()
             validarCampos()
         }
 
@@ -107,6 +110,11 @@ class EditarCitaFragment : Fragment(R.layout.fragment_editar_cita) {
     }
 
     private fun observarCambios(campo: EditText) {
+        campo.setOnFocusChangeListener { _, tieneFoco ->
+            if (!tieneFoco) camposVisitados.add(campo.id)
+            actualizarErroresCampos()
+        }
+
         campo.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(
                 s: CharSequence?,
@@ -121,6 +129,8 @@ class EditarCitaFragment : Fragment(R.layout.fragment_editar_cita) {
                 before: Int,
                 count: Int
             ) {
+                if (campo.hasFocus()) camposVisitados.add(campo.id)
+                actualizarErroresCampos()
                 validarCampos()
             }
 
@@ -174,8 +184,55 @@ private fun cargarCita() {
 
     private fun configurarBotonEditar() {
         binding.btnEditarCita.setOnClickListener {
+            mostrarErroresCampos()
             actualizarCita()
         }
+    }
+
+    private fun mostrarErroresCampos() {
+        camposVisitados.add(binding.etNombreMascota.id)
+        camposVisitados.add(binding.actvRaza.id)
+        camposVisitados.add(binding.etPropietario.id)
+        camposVisitados.add(binding.etTelefono.id)
+        actualizarErroresCampos()
+    }
+
+    private fun actualizarErroresCampos() {
+        mostrarErrorSiVacio(
+            binding.etNombreMascota,
+            binding.tilNombreMascota,
+            "Ingresa el nombre de la mascota."
+        )
+
+        val raza = binding.actvRaza.text?.toString()?.trim().orEmpty()
+        val razaValida = listaRazas.any { it.equals(raza, ignoreCase = true) }
+        binding.tilRaza.error = when {
+            binding.actvRaza.id !in camposVisitados -> null
+            raza.isEmpty() -> "Selecciona una raza."
+            !razaValida -> "Selecciona una raza de las sugerencias."
+            else -> null
+        }
+
+        mostrarErrorSiVacio(
+            binding.etPropietario,
+            binding.tilPropietario,
+            "Ingresa el nombre del propietario."
+        )
+        mostrarErrorSiVacio(
+            binding.etTelefono,
+            binding.tilTelefono,
+            "Ingresa el teléfono de contacto."
+        )
+    }
+
+    private fun mostrarErrorSiVacio(
+        campo: EditText,
+        contenedor: TextInputLayout,
+        mensaje: String
+    ) {
+        contenedor.error = if (
+            campo.id in camposVisitados && campo.text.toString().trim().isEmpty()
+        ) mensaje else null
     }
 
     private fun formularioValido(): Boolean {
@@ -194,15 +251,17 @@ private fun cargarCita() {
                 telefono.isNotEmpty() &&
                 telefono.length <= 10 &&
                 telefono.all { it.isDigit() } &&
-                listaRazas.contains(raza)
+                listaRazas.any { it.equals(raza, ignoreCase = true) }
     }
 
     private fun validarCampos() {
         binding.btnEditarCita.isEnabled =
-            formularioValido() && dogViewModel.isLoading.value != true
+            citaCargada && citaOriginal != null && dogViewModel.isLoading.value != true
     }
 
     private fun actualizarCita() {
+        mostrarErroresCampos()
+
         if (!formularioValido()) {
             Toast.makeText(
                 requireContext(),

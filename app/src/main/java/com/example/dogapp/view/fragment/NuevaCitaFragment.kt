@@ -79,6 +79,7 @@ class NuevaCitaFragment : Fragment() {
         }
 
         binding.etNombreMascota.addTextChangedListener {
+            if (binding.etNombreMascota.hasFocus()) nombreVisitado = true
             actualizarErrorNombre()
             validarFormulario()
         }
@@ -95,6 +96,7 @@ class NuevaCitaFragment : Fragment() {
 
         binding.actvRaza.addTextChangedListener { texto ->
 
+            if (binding.actvRaza.hasFocus()) razaVisitada = true
             val consulta = texto?.toString()?.trim().orEmpty()
 
             if (consulta.length >= 2 && listaRazas.isEmpty()) {
@@ -166,6 +168,7 @@ class NuevaCitaFragment : Fragment() {
         }
 
         binding.etPropietario.addTextChangedListener {
+            if (binding.etPropietario.hasFocus()) propietarioVisitado = true
             actualizarErrorPropietario()
             validarFormulario()
         }
@@ -180,6 +183,7 @@ class NuevaCitaFragment : Fragment() {
         }
 
         binding.etTelefono.addTextChangedListener {
+            if (binding.etTelefono.hasFocus()) telefonoVisitado = true
             actualizarErrorTelefono()
             validarFormulario()
         }
@@ -208,6 +212,17 @@ class NuevaCitaFragment : Fragment() {
         val telefono = binding.etTelefono.text?.toString()?.trim().orEmpty()
         binding.tilTelefono.error =
             if (telefonoVisitado && telefono.isEmpty()) "Ingresa el teléfono de contacto." else null
+    }
+
+    private fun mostrarErroresFormulario() {
+        nombreVisitado = true
+        razaVisitada = true
+        propietarioVisitado = true
+        telefonoVisitado = true
+        actualizarErrorNombre()
+        actualizarErrorRaza()
+        actualizarErrorPropietario()
+        actualizarErrorTelefono()
     }
 
     // HU 3.4: Selector de síntomas
@@ -255,13 +270,15 @@ class NuevaCitaFragment : Fragment() {
             telefono.all { it.isDigit() } &&
             telefono.length <= 10
 
-        binding.btnGuardarCita.isEnabled = camposCompletos && !cargandoOperacion
+        binding.btnGuardarCita.isEnabled = !cargandoOperacion
         return camposCompletos
     }
 
     private fun configurarBotonGuardar() {
 
         binding.btnGuardarCita.setOnClickListener {
+
+            mostrarErroresFormulario()
 
             if (!validarFormulario()) {
                 return@setOnClickListener

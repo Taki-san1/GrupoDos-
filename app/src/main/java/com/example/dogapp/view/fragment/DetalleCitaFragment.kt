@@ -1,5 +1,6 @@
 package com.example.dogapp.view.fragment
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -75,8 +76,15 @@ class DetalleCitaFragment : Fragment() {
         }
 
         binding.fabEliminar.setOnClickListener {
-            dogViewModel.limpiarEstadoOperacion()
-            dogViewModel.eliminarCita(cita)
+            AlertDialog.Builder(requireContext())
+                .setTitle("Eliminar cita")
+                .setMessage("¿Deseas eliminar la cita de ${cita.nombreMascota}?")
+                .setNegativeButton("Cancelar", null)
+                .setPositiveButton("Eliminar") { _, _ ->
+                    dogViewModel.limpiarEstadoOperacion()
+                    dogViewModel.eliminarCita(cita)
+                }
+                .show()
         }
 
         binding.fabEditar.setOnClickListener {

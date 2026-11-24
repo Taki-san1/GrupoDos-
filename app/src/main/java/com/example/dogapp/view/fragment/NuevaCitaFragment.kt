@@ -26,6 +26,10 @@ class NuevaCitaFragment : Fragment() {
     private var listaRazas: List<String> = emptyList()
     private var cargandoRazas = false
     private var cargandoOperacion = false
+    private var nombreVisitado = false
+    private var razaVisitada = false
+    private var propietarioVisitado = false
+    private var telefonoVisitado = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -69,7 +73,13 @@ class NuevaCitaFragment : Fragment() {
     // HU 3.2: Nombre de la mascota
     private fun configurarCampoNombre() {
 
+        binding.etNombreMascota.setOnFocusChangeListener { _, tieneFoco ->
+            if (!tieneFoco) nombreVisitado = true
+            actualizarErrorNombre()
+        }
+
         binding.etNombreMascota.addTextChangedListener {
+            actualizarErrorNombre()
             validarFormulario()
         }
     }
@@ -78,6 +88,10 @@ class NuevaCitaFragment : Fragment() {
     private fun configurarCampoRaza() {
 
         binding.actvRaza.threshold = 2
+        binding.actvRaza.setOnFocusChangeListener { _, tieneFoco ->
+            if (!tieneFoco) razaVisitada = true
+            actualizarErrorRaza()
+        }
 
         binding.actvRaza.addTextChangedListener { texto ->
 
@@ -95,10 +109,12 @@ class NuevaCitaFragment : Fragment() {
                 }
             }
 
+            actualizarErrorRaza()
             validarFormulario()
         }
 
         binding.actvRaza.setOnItemClickListener { _, _, _, _ ->
+            actualizarErrorRaza()
             validarFormulario()
         }
     }
@@ -129,6 +145,7 @@ class NuevaCitaFragment : Fragment() {
                 }
             }
 
+            actualizarErrorRaza()
             validarFormulario()
         }
     }
@@ -143,7 +160,13 @@ class NuevaCitaFragment : Fragment() {
     // HU 3.4: Nombre del propietario
     private fun configurarCampoPropietario() {
 
+        binding.etPropietario.setOnFocusChangeListener { _, tieneFoco ->
+            if (!tieneFoco) propietarioVisitado = true
+            actualizarErrorPropietario()
+        }
+
         binding.etPropietario.addTextChangedListener {
+            actualizarErrorPropietario()
             validarFormulario()
         }
     }
@@ -151,9 +174,40 @@ class NuevaCitaFragment : Fragment() {
     // HU 3.4: Teléfono de contacto
     private fun configurarCampoTelefono() {
 
+        binding.etTelefono.setOnFocusChangeListener { _, tieneFoco ->
+            if (!tieneFoco) telefonoVisitado = true
+            actualizarErrorTelefono()
+        }
+
         binding.etTelefono.addTextChangedListener {
+            actualizarErrorTelefono()
             validarFormulario()
         }
+    }
+
+    private fun actualizarErrorNombre() {
+        val nombre = binding.etNombreMascota.text?.toString()?.trim().orEmpty()
+        binding.tilNombreMascota.error =
+            if (nombreVisitado && nombre.isEmpty()) "Ingresa el nombre de la mascota." else null
+    }
+
+    private fun actualizarErrorRaza() {
+        val raza = binding.actvRaza.text?.toString()?.trim().orEmpty()
+        val razaValida = listaRazas.any { it.equals(raza, ignoreCase = true) }
+        binding.tilRaza.error =
+            if (razaVisitada && !razaValida) "Selecciona una raza de las sugerencias." else null
+    }
+
+    private fun actualizarErrorPropietario() {
+        val propietario = binding.etPropietario.text?.toString()?.trim().orEmpty()
+        binding.tilPropietario.error =
+            if (propietarioVisitado && propietario.isEmpty()) "Ingresa el nombre del propietario." else null
+    }
+
+    private fun actualizarErrorTelefono() {
+        val telefono = binding.etTelefono.text?.toString()?.trim().orEmpty()
+        binding.tilTelefono.error =
+            if (telefonoVisitado && telefono.isEmpty()) "Ingresa el teléfono de contacto." else null
     }
 
     // HU 3.4: Selector de síntomas

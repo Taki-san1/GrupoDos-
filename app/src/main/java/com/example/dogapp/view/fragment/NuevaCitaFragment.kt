@@ -24,6 +24,8 @@ class NuevaCitaFragment : Fragment() {
     private val dogViewModel: DogViewModel by viewModels()
 
     private var listaRazas: List<String> = emptyList()
+    private var cargandoRazas = false
+    private var cargandoOperacion = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,7 +56,7 @@ class NuevaCitaFragment : Fragment() {
         observarErrores()
         observarGuardado()
 
-        dogViewModel.cargarRazas()
+        solicitarRazas()
     }
 
     // Regresar al Home de citas
@@ -82,7 +84,15 @@ class NuevaCitaFragment : Fragment() {
             val consulta = texto?.toString()?.trim().orEmpty()
 
             if (consulta.length >= 2 && listaRazas.isEmpty()) {
-                dogViewModel.cargarRazas()
+                solicitarRazas()
+            }
+
+            if (consulta.length >= 2 && listaRazas.isNotEmpty()) {
+                binding.actvRaza.post {
+                    if (binding.actvRaza.hasFocus() && binding.actvRaza.text.length >= 2) {
+                        binding.actvRaza.showDropDown()
+                    }
+                }
             }
 
             validarFormulario()
@@ -99,6 +109,7 @@ class NuevaCitaFragment : Fragment() {
 
             if (!razas.isNullOrEmpty()) {
 
+                cargandoRazas = false
                 listaRazas = razas
 
                 val adaptador = ArrayAdapter(
@@ -110,12 +121,23 @@ class NuevaCitaFragment : Fragment() {
                 binding.actvRaza.setAdapter(adaptador)
 
                 if (binding.actvRaza.text.length >= 2) {
-                    binding.actvRaza.showDropDown()
+                    binding.actvRaza.post {
+                        if (binding.actvRaza.hasFocus()) {
+                            binding.actvRaza.showDropDown()
+                        }
+                    }
                 }
             }
 
             validarFormulario()
         }
+    }
+
+    private fun solicitarRazas() {
+        if (cargandoRazas || listaRazas.isNotEmpty()) return
+
+        cargandoRazas = true
+        dogViewModel.cargarRazas()
     }
 
     // HU 3.4: Nombre del propietario
@@ -151,7 +173,7 @@ class NuevaCitaFragment : Fragment() {
     }
 
     // HU 3.5: Validación de los campos obligatorios
-    private fun validarFormulario(mostrarError: Boolean = false): Boolean {
+    private fun validarFormulario(): Boolean {
 
         val nombre = binding.etNombreMascota.text
             ?.toString()?.trim().orEmpty()
@@ -169,29 +191,25 @@ class NuevaCitaFragment : Fragment() {
             it.equals(raza, ignoreCase = true)
         }
 
-        val mensajeError = when {
-            nombre.isEmpty() -> "Ingresa el nombre de la mascota."
-            nombre.length > 15 -> "El nombre de la mascota no puede superar 15 caracteres."
-            !razaValida -> "Selecciona una raza de las opciones disponibles."
-            propietario.isEmpty() -> "Ingresa el nombre del propietario."
-            propietario.length > 30 -> "El nombre del propietario no puede superar 30 caracteres."
-            telefono.isEmpty() || telefono.any { !it.isDigit() } || telefono.length > 10 ->
-                "Ingresa un teléfono de máximo 10 dígitos."
-            else -> null
-        }
+        val camposCompletos =
+            nombre.isNotEmpty() &&
+            nombre.length <= 15 &&
+            razaValida &&
+            propietario.isNotEmpty() &&
+            propietario.length <= 30 &&
+            telefono.isNotEmpty() &&
+            telefono.all { it.isDigit() } &&
+            telefono.length <= 10
 
-        if (mostrarError && mensajeError != null) {
-            Toast.makeText(requireContext(), mensajeError, Toast.LENGTH_SHORT).show()
-        }
-
-        return mensajeError == null
+        binding.btnGuardarCita.isEnabled = camposCompletos && !cargandoOperacion
+        return camposCompletos
     }
 
     private fun configurarBotonGuardar() {
 
         binding.btnGuardarCita.setOnClickListener {
 
-            if (!validarFormulario(mostrarError = true)) {
+            if (!validarFormulario()) {
                 return@setOnClickListener
             }
 
@@ -244,12 +262,8 @@ class NuevaCitaFragment : Fragment() {
             binding.progressRazas.visibility =
                 if (cargando) View.VISIBLE else View.GONE
 
-            if (cargando) {
-                binding.btnGuardarCita.isEnabled = false
-            } else {
-                binding.btnGuardarCita.isEnabled = true
-                validarFormulario()
-            }
+            cargandoOperacion = cargando
+            validarFormulario()
         }
     }
 
@@ -258,6 +272,8 @@ class NuevaCitaFragment : Fragment() {
         dogViewModel.error.observe(viewLifecycleOwner) { mensaje ->
 
             if (!mensaje.isNullOrBlank()) {
+
+                cargandoRazas = false
 
                 Toast.makeText(
                     requireContext(),

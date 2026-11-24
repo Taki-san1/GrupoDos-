@@ -151,7 +151,7 @@ class NuevaCitaFragment : Fragment() {
     }
 
     // HU 3.5: Validación de los campos obligatorios
-    private fun validarFormulario() {
+    private fun validarFormulario(mostrarError: Boolean = false): Boolean {
 
         val nombre = binding.etNombreMascota.text
             ?.toString()?.trim().orEmpty()
@@ -169,22 +169,31 @@ class NuevaCitaFragment : Fragment() {
             it.equals(raza, ignoreCase = true)
         }
 
-        val camposCompletos =
-            nombre.isNotEmpty() &&
-            nombre.length <= 15 &&
-            razaValida &&
-            propietario.isNotEmpty() &&
-            propietario.length <= 30 &&
-            telefono.isNotEmpty() &&
-            telefono.all { it.isDigit() } &&
-            telefono.length <= 10
+        val mensajeError = when {
+            nombre.isEmpty() -> "Ingresa el nombre de la mascota."
+            nombre.length > 15 -> "El nombre de la mascota no puede superar 15 caracteres."
+            !razaValida -> "Selecciona una raza de las opciones disponibles."
+            propietario.isEmpty() -> "Ingresa el nombre del propietario."
+            propietario.length > 30 -> "El nombre del propietario no puede superar 30 caracteres."
+            telefono.isEmpty() || telefono.any { !it.isDigit() } || telefono.length > 10 ->
+                "Ingresa un teléfono de máximo 10 dígitos."
+            else -> null
+        }
 
-        binding.btnGuardarCita.isEnabled = camposCompletos
+        if (mostrarError && mensajeError != null) {
+            Toast.makeText(requireContext(), mensajeError, Toast.LENGTH_SHORT).show()
+        }
+
+        return mensajeError == null
     }
 
     private fun configurarBotonGuardar() {
 
         binding.btnGuardarCita.setOnClickListener {
+
+            if (!validarFormulario(mostrarError = true)) {
+                return@setOnClickListener
+            }
 
             val sintoma = binding.actvSintoma.text
                 ?.toString()?.trim().orEmpty()
@@ -238,6 +247,7 @@ class NuevaCitaFragment : Fragment() {
             if (cargando) {
                 binding.btnGuardarCita.isEnabled = false
             } else {
+                binding.btnGuardarCita.isEnabled = true
                 validarFormulario()
             }
         }

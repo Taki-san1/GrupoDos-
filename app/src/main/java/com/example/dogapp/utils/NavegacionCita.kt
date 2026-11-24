@@ -29,7 +29,7 @@ fun Fragment.irAEditar(cita: Cita) =
     navegarDesde(
         R.id.detalleCitaFragment,
         R.id.action_detalleCitaFragment_to_editarCitaFragment,
-        bundleOf(Constants.CLAVE_CITA to cita)
+        bundleOf(Constants.CLAVE_CITA to cita, Constants.CLAVE_CITA_ID to cita.id)
     )
 
 /** HU 5 -> HU 2: después de guardar la edición (criterio 8). */

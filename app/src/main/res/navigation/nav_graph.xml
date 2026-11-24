@@ -57,6 +57,11 @@
         <argument
             android:name="cita"
             app:argType="com.example.dogapp.model.Cita" />
+        <argument
+            android:name="citaId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+
         <action
             android:id="@+id/action_editarCitaFragment_to_homeCitasFragment"
             app:destination="@id/homeCitasFragment"

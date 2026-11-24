@@ -14,6 +14,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.dogapp.R
 import com.example.dogapp.databinding.FragmentEditarCitaBinding
 import com.example.dogapp.model.Cita
+import com.example.dogapp.utils.Constants
 import com.example.dogapp.viewmodel.DogViewModel
 
 class EditarCitaFragment : Fragment(R.layout.fragment_editar_cita) {
@@ -28,7 +29,7 @@ class EditarCitaFragment : Fragment(R.layout.fragment_editar_cita) {
     private var citaCargada = false
 
     companion object {
-        const val ARG_CITA_ID = "citaId"
+        const val ARG_CITA_ID = Constants.CLAVE_CITA_ID
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
